@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Usuario</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --color-primary: #9a0000;
+            --color-secondary: #c20000;
+            --color-accent: #de0e0e;
+            --color-light-accent: #ff4e4e;
+            --color-light: #FFF0F0;
+        }
+
+        body {
+            background-color: var(--color-light);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+        }
+
+        h2 {
+            color: var(--color-primary);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--color-accent);
+            display: inline-block;
+            padding-bottom: 0.3rem;
+        }
+
+        .card {
+            border-top: 5px solid var(--color-primary);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            background-color: white;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid var(--color-light-accent);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(154, 0, 0, 0.4);
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border: none;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-secondary {
+            background-color: var(--color-accent);
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-light-accent);
+        }
+    </style>
+</head>
+<body class="container mt-5">
+    <h2><i class="bi bi-pencil-square"></i> Editar Usuario</h2>
+
+    <div class="card">
+        <form method="POST" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" name="nombre_completo" value="{{ usuario.Nombre_completo }}" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">CURP</label>
+                <input type="text" name="curp" value="{{ usuario.Curp }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Número de tarjeta</label>
+                <input type="text" name="folio" value="{{ usuario.Folio }}" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Número de contacto</label>
+                <input type="tel" name="numero_contacto" value="{{ usuario.Numero_contacto }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" value="{{ usuario.Email }}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Dirección</label>
+                <input type="text" name="direccion" value="{{ usuario.Direccion }}" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Colonia</label>
+                <select name="colonia" class="form-select" required>
+                    <option value="">Selecciona una colonia</option>
+                    <option value="Emiliano Zapata" {% if usuario['Colonia'] == 'Emiliano Zapata' %}selected{% endif %}>Emiliano Zapata</option>
+                    <option value="Barrio Santa Cruz" {% if usuario['Colonia'] == 'Barrio Santa Cruz' %}selected{% endif %}>Barrio Santa Cruz</option>
+                    <option value="Villa Hermosa" {% if usuario['Colonia'] == 'Villa Hermosa' %}selected{% endif %}>Villa Hermosa</option>
+                    <option value="Centro" {% if usuario['Colonia'] == 'Centro' %}selected{% endif %}>Centro</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Código Postal</label>
+                <input type="text" name="codigo_postal" value="{{ usuario.Codigo_postal }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Género</label>
+                <select name="genero" class="form-select" required>
+                    <option value="Masculino" {% if usuario.Genero == 'Masculino' %}selected{% endif %}>Masculino</option>
+                    <option value="Femenino" {% if usuario.Genero == 'Femenino' %}selected{% endif %}>Femenino</option>
+                    <option value="Otro" {% if usuario.Genero == 'Otro' %}selected{% endif %}>Otro</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estatus</label>
+                <select name="estatus" class="form-select">
+                    <option value="Soltero" {% if usuario.Estatus == 'Soltero' %}selected{% endif %}>Soltero</option>
+                    <option value="Casado" {% if usuario.Estatus == 'Casado' %}selected{% endif %}>Casado</option>
+                </select>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-warning me-2">
+                    <i class="bi bi-save"></i> Guardar Cambios
+                </button>
+                <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

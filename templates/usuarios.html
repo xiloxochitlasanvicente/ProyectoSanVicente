@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios registrados</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --color-primary: #9a0000;
+            --color-secondary: #c20000;
+            --color-accent: #de0e0e;
+            --color-light-accent: #ff4e4e;
+            --color-alert: #ea0001;
+            --color-dark: #1A1A1A;
+            --color-light: #FFF0F0;
+        }
+
+        body {
+            background-color: var(--color-light);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 100%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 2rem;
+            border-top: 5px solid var(--color-primary);
+        }
+
+        h2 {
+            color: var(--color-primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--color-accent);
+            display: inline-block;
+            font-size: 1.8rem;
+        }
+
+        .btn {
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: var(--color-secondary);
+        }
+
+        .btn-success {
+            background-color: var(--color-accent);
+            border: none;
+        }
+        .btn-success:hover {
+            background-color: var(--color-secondary);
+        }
+
+        .btn-warning {
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .table thead th {
+            background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(255, 78, 78, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.4rem;
+        }
+        .btn-group .btn {
+            flex: 1;
+        }
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid var(--color-light-accent);
+        }
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(154, 0, 0, 0.4);
+        }
+        .form-select {
+            border-radius: 6px;
+            border: 1px solid var(--color-light-accent);
+        }
+        .form-select:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 5px rgba(154, 0, 0, 0.4);
+        }
+        .btn-outline-primary {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body class="container mt-4">
+    <h2><i class="bi bi-people-fill"></i> Consulta de Usuarios</h2>
+
+    <!-- Barra de Búsqueda -->
+    <form method="GET" action="{{ url_for('usuarios') }}" class="row g-3 mb-4 mt-3">
+        <div class="col-md-4">
+            <input type="text" name="busqueda" class="form-control"
+                   placeholder="🔍 Buscar... (Nombre, Colonia o Folio)"
+                   value="{{ request.args.get('busqueda', '') }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </div>
+    </form>
+
+    <a href="{{ url_for('registrar_usuario') }}" class="btn btn-success mb-3">
+        <i class="bi bi-person-plus-fill"></i> Registrar nuevo usuario
+    </a>
+
+    <!-- Tabla -->
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th><i class="bi bi-person"></i> Nombre</th>
+                <th><i class="bi bi-card-heading"></i> CURP</th>
+                <th><i class="bi bi-credit-card-2-front"></i> Folio</th>
+                <th><i class="bi bi-house"></i> Colonia</th>
+                <th><i class="bi bi-geo-alt"></i> Dirección</th>
+                <th><i class="bi bi-envelope"></i> Email</th>
+                <th><i class="bi bi-telephone"></i> Contacto</th>
+                <th><i class="bi bi-mailbox"></i> CP</th>
+                <th><i class="bi bi-gender-ambiguous"></i> Género</th>
+                <th><i class="bi bi-info-circle"></i> Estatus</th>
+                <th><i class="bi bi-gear"></i> Opciones Registro</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.Nombre_completo }}</td>
+                <td>{{ usuario.Curp }}</td>
+                <td>{{ usuario.Folio }}</td>
+                <td>{{ usuario.Colonia }}</td>
+                <td>{{ usuario.Direccion }}</td>
+                <td>{{ usuario.Email }}</td>
+                <td>{{ usuario.Numero_contacto }}</td>
+                <td>{{ usuario.Codigo_postal }}</td>
+                <td>{{ usuario.Genero }}</td>
+                <td>{{ usuario.Estatus }}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{{ url_for('editar_usuario', folio=usuario.Folio) }}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                        <a href="{{ url_for('eliminar_usuario', folio=usuario.Folio) }}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Estás seguro de eliminar este usuario?');">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                        <a href="{{ url_for('tarjeta_usuario', folio=usuario.Folio) }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-credit-card"></i> Tarjeta
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11" class="text-center py-4">
+                    <i class="bi bi-exclamation-circle"></i> No se encontraron usuarios.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('menu') }}" class="btn btn-outline-primary mt-3">
+        <i class="bi bi-arrow-left"></i> Volver al menú
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

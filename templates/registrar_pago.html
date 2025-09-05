@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Pago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .payment-card {
+            max-width: 600px;
+            margin: 2rem auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .payment-header {
+            border-radius: 15px 15px 0 0 !important;
+        }
+        .month-checkbox {
+            display: inline-block;
+            width: 120px;
+            margin: 5px;
+        }
+        .btn-action {
+            min-width: 120px;
+        }
+        #totalAmount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .form-control-plaintext {
+            border-bottom: 1px solid #dee2e6;
+            padding: 0.375rem 0;
+        }
+        /* Estilos para el modal de baja */
+        #confirmarBajaModal .modal-header {
+            border-bottom: none;
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body class="container mt-4">
+    <div class="card payment-card">
+        <div class="card-header payment-header bg-primary text-white">
+            <h4 class="mb-0 text-center">
+                <i class="bi bi-cash-coin"></i> Registrar Pago
+            </h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('registrar_pago', folio=usuario.Folio) }}" id="paymentForm">
+                <!-- Información del usuario -->
+                <div class="mb-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre completo</label>
+                        <div class="form-control-plaintext">{{ usuario.Nombre_completo }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Folio</label>
+                        <div class="form-control-plaintext">{{ usuario.Folio }}</div>
+                    </div>
+                    
+                    <!-- Fecha actual (no editable) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fecha de pago</label>
+                        <div class="form-control-plaintext" id="fechaPago">{{ fecha_actual }}</div>
+                        <input type="hidden" name="fecha_pago" id="fechaInput" value="{{ fecha_actual_iso }}">
+                    </div>
+                    
+                    <!-- Selección de año -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Año a pagar</label>
+                        <select class="form-select" name="anio" id="selectAnio" required>
+                            {% for año in años_disponibles %}
+                            <option value="{{ año }}" {% if año == año_actual %}selected{% endif %}>{{ año }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Selección de meses -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Meses pendientes de pago</label>
+                        <div class="mb-3" id="mesesContainer">
+                            {% if meses_pendientes %}
+                                {% for mes in meses_pendientes %}
+                                <div class="form-check month-checkbox">
+                                    <input class="form-check-input month-selector" type="checkbox" 
+                                        id="mes{{ loop.index }}" name="meses" value="{{ mes }}"
+                                        data-price="50">
+                                    <label class="form-check-label" for="mes{{ loop.index }}">{{ mes }}</label>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle"></i> Todos los meses han sido pagados
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Monto total -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <label class="form-label fw-bold">Monto total:</label>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span id="totalAmount">$0.00</span>
+                            <input type="hidden" name="monto" id="montoInput" value="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('pagos') }}" class="btn btn-outline-secondary btn-action">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <div>
+                        <button type="button" class="btn btn-danger btn-action me-2" data-bs-toggle="modal" data-bs-target="#confirmarBajaModal">
+                            <i class="bi bi-person-x"></i> Dar de baja
+                        </button>
+                        <button type="submit" class="btn btn-success btn-action" id="submitBtn" {% if not meses_pendientes %}disabled{% endif %}>
+                            <i class="bi bi-check-circle"></i> Registrar Pago
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación de baja simplificado -->
+    <div class="modal fade" id="confirmarBajaModal" tabindex="-1" aria-labelledby="confirmarBajaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="confirmarBajaModalLabel">
+                        <i class="bi bi-exclamation-triangle"></i> Confirmar baja de usuario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro que deseas dar de baja al usuario <strong>{{ usuario.Nombre_completo }}</strong> (Folio: {{ usuario.Folio }})?</p>
+                    <p class="text-danger fw-bold">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <form method="POST" action="{{ url_for('dar_baja_usuario', folio=usuario.Folio) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-person-x"></i> Confirmar baja
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript para calcular el total y actualizar meses -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.month-selector');
+            const totalAmount = document.getElementById('totalAmount');
+            const montoInput = document.getElementById('montoInput');
+            const selectAnio = document.getElementById('selectAnio');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Función para actualizar total
+            function updateTotal() {
+                let total = 0;
+                const selectedMonths = [];
+                
+                document.querySelectorAll('.month-selector').forEach(checkbox => {
+                    if (checkbox.checked) {
+                        total += parseFloat(checkbox.dataset.price);
+                        selectedMonths.push(checkbox.value);
+                    }
+                });
+                
+                totalAmount.textContent = '$' + total.toFixed(2);
+                montoInput.value = total.toFixed(2);
+                submitBtn.disabled = selectedMonths.length === 0;
+            }
+            
+            // Evento para cambio de año
+            selectAnio.addEventListener('change', function() {
+                const año = this.value;
+                fetch(`/get_meses_pendientes?folio={{ usuario.Folio }}&anio=${año}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const container = document.getElementById('mesesContainer');
+                        if (data.meses_pendientes.length > 0) {
+                            container.innerHTML = data.meses_pendientes.map(mes => `
+                                <div class="form-check month-checkbox">
+                                    <input class="form-check-input month-selector" type="checkbox" 
+                                        id="mes${mes}" name="meses" value="${mes}"
+                                        data-price="50">
+                                    <label class="form-check-label" for="mes${mes}">${mes}</label>
+                                </div>
+                            `).join('');
+                            
+                            // Reasignar eventos a los nuevos checkboxes
+                            document.querySelectorAll('.month-selector').forEach(checkbox => {
+                                checkbox.addEventListener('change', updateTotal);
+                            });
+                        } else {
+                            container.innerHTML = `
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle"></i> Todos los meses han sido pagados
+                                </div>
+                            `;
+                        }
+                        updateTotal();
+                    });
+            });
+            
+            // Inicializar eventos
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotal);
+            });
+            
+            updateTotal();
+        });
+    </script>
+
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

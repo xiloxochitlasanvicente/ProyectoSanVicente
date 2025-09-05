@@ -1,0 +1,24 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Firebase config
+firebase_config.json
+
+# Variables de entorno
+.env
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs y cachés
+*.log
+*.sqlite3
+*.db
+
+# Entornos de editores
+.vscode/
+.idea/
