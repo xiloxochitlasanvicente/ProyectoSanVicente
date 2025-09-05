@@ -2,6 +2,8 @@ import calendar
 import datetime
 from flask import Flask, flash, render_template, request, redirect, url_for, jsonify
 import firebase_admin
+import json
+import os
 from firebase_admin import credentials, firestore
 from datetime import datetime
 from flask import render_template
@@ -13,9 +15,17 @@ MESES_COMPLETOS = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
-# Iniciar Firebase con el JSoN de configuración
-cred = credentials.Certificate("firebase_config.json")
-# Inicializar la aplicación de Firebase
+# Leer la configuración desde variable de entorno
+firebase_config = os.environ.get("FIREBASE_CONFIG")
+
+if not firebase_config:
+    raise Exception("FIREBASE_CONFIG no está definida en las variables de entorno de Render")
+
+# Convertir string a diccionario
+firebase_config_dict = json.loads(firebase_config)
+
+# Inicializar Firebase con credenciales
+cred = credentials.Certificate(firebase_config_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -490,4 +500,5 @@ def get_historial_pagos():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
