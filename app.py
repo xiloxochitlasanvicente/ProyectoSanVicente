@@ -4,7 +4,7 @@ from flask import Flask, flash, render_template, request, redirect, url_for, jso
 import firebase_admin
 import json
 import os
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, initialize_app
 from datetime import datetime
 from flask import render_template
 
