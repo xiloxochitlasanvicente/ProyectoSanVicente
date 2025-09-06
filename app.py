@@ -15,20 +15,22 @@ MESES_COMPLETOS = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ]
-# Leer la configuración desde variable de entorno
+
 firebase_config = os.environ.get("FIREBASE_CONFIG")
 
 if not firebase_config:
     raise Exception("FIREBASE_CONFIG no está definida en las variables de entorno de Render")
 
-# Convertir string a diccionario
+# Convertir string JSON a diccionario
 firebase_config_dict = json.loads(firebase_config)
+
+# 🔑 Arreglar la private_key: reemplazar \n por saltos reales
+firebase_config_dict["private_key"] = firebase_config_dict["private_key"].replace("\\n", "\n")
 
 # Inicializar Firebase con credenciales
 cred = credentials.Certificate(firebase_config_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-
 
 
 # Ruta de menu principal
